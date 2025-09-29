@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spirograph Drawer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .controls {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .controls label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9rem;
+    }
+    .controls input {
+      padding: 0.3rem 0.4rem;
+      font-size: 1rem;
+      width: 6rem;
+    }
+    #startBtn {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #canvasContainer {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Spirograph Drawer</h1>
+  <p style="text-align:center; max-width:600px; margin:0 auto;">
+    Use the form below to set the parameters for your spirograph. The outer radius (R) must be greater than the inner radius (r), and the pen offset (O) must be between 0 and r. Alternatively, leave the values blank and the script will randomly generate them for you. Click the <strong>Start Drawing</strong> button to watch the spirograph unfold!
+  </p>
+  <div class="controls">
+    <label>
+      Outer radius (R)
+      <input type="number" id="outerRadius" min="10" max="200" placeholder="random" />
+    </label>
+    <label>
+      Inner radius (r)
+      <input type="number" id="innerRadius" min="5" max="200" placeholder="random" />
+    </label>
+    <label>
+      Pen offset (O)
+      <input type="number" id="offset" min="0" max="200" placeholder="random" />
+    </label>
+    <label>
+      Colorful drawing
+      <input type="checkbox" id="colorful" />
+    </label>
+    <button id="startBtn">Start Drawing</button>
+  </div>
+
+  <div id="canvasContainer">
+    <canvas id="spiroCanvas" width="600" height="600"></canvas>
+  </div>
+
+  <script>
+    function gcd(a, b) {
+      a = Math.abs(a);
+      b = Math.abs(b);
+      while (b > 1e-6) {
+        const temp = b;
+        b = a % b;
+        a = temp;
+      }
+      return a;
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      const canvas = document.getElementById('spiroCanvas');
+      const ctx = canvas.getContext('2d');
+      const outerInput = document.getElementById('outerRadius');
+      const innerInput = document.getElementById('innerRadius');
+      const offsetInput = document.getElementById('offset');
+      const colorful = document.getElementById('colorful').checked;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let R = parseFloat(outerInput.value);
+      let r = parseFloat(innerInput.value);
+      let O = parseFloat(offsetInput.value);
+
+      if (!Number.isFinite(R)) R = randomInt(40, 200);
+      if (!Number.isFinite(r)) r = randomInt(10, Math.floor(R * 0.8));
+      if (!Number.isFinite(O)) O = randomInt(0, Math.floor(r));
+
+      if (r >= R) {
+        alert('Inner radius (r) must be less than outer radius (R).');
+        return;
+      }
+      if (O > r) {
+        alert('Pen offset (O) must be less than or equal to r.');
+        return;
+      }
+
+      outerInput.value = R;
+      innerInput.value = r;
+      offsetInput.value = O;
+
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.lineWidth = 1;
+
+      const circleCount = r / gcd(R, r);
+      const tEnd = 2 * Math.PI * circleCount;
+      let t = 0;
+      const step = 0.02;
+      let prevX, prevY;
+
+      function computePos(angle) {
+        const x = (R + r) * Math.cos(angle) - (r + O) * Math.cos(((R + r) / r) * angle);
+        const y = (R + r) * Math.sin(angle) - (r + O) * Math.sin(((R + r) / r) * angle);
+        return { x, y };
+      }
+
+      const startPos = computePos(t);
+      prevX = startPos.x;
+      prevY = startPos.y;
+
+      function randomColor() {
+        return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+      }
+
+      function draw() {
+        if (t >= tEnd) {
+          ctx.restore();
+          return;
+        }
+        t += step;
+        const pos = computePos(t);
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.strokeStyle = colorful ? randomColor() : '#000';
+        ctx.stroke();
+        ctx.closePath();
+
+        prevX = pos.x;
+        prevY = pos.y;
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    });
+  </script>
+</body>
+</html>
