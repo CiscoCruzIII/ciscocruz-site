@@ -1,0 +1,47 @@
+{
+  "team": "Flagler University Lions",
+  "sport": "Basketball",
+  "season": 2024,
+  "players": [
+    {
+      "playerName": "Alex Carter",
+      "position": "Guard",
+      "gamesPlayed": 20,
+      "points": 312,
+      "assists": 85,
+      "rebounds": 45
+    },
+    {
+      "playerName": "Brooke Henderson",
+      "position": "Forward",
+      "gamesPlayed": 20,
+      "points": 278,
+      "assists": 60,
+      "rebounds": 120
+    },
+    {
+      "playerName": "Chris Johnson",
+      "position": "Center",
+      "gamesPlayed": 18,
+      "points": 225,
+      "assists": 30,
+      "rebounds": 155
+    },
+    {
+      "playerName": "Danielle Smith",
+      "position": "Guard",
+      "gamesPlayed": 20,
+      "points": 260,
+      "assists": 95,
+      "rebounds": 40
+    },
+    {
+      "playerName": "Evan Rodriguez",
+      "position": "Forward",
+      "gamesPlayed": 19,
+      "points": 294,
+      "assists": 70,
+      "rebounds": 100
+    }
+  ]
+}

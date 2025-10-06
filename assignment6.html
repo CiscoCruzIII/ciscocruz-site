@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flagler University Lions Stats</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #fdfdfd;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    table {
+      width: 90%;
+      margin: 1rem auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="teamHeader">Team Statistics</h1>
+  <h2 id="seasonHeader"></h2>
+
+  <table id="statsTable">
+    <thead>
+      <tr>
+        <th>Player Name</th>
+        <th>Position</th>
+        <th>Games Played</th>
+        <th>Points</th>
+        <th>Assists</th>
+        <th>Rebounds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    // Asynchronously load the external JSON file using the Fetch API.
+    async function loadData() {
+      try {
+        // Fetch the JSON file relative to this HTML file.
+        const response = await fetch('sportsData.json');
+        if (!response.ok) {
+          throw new Error('HTTP error ' + response.status);
+        }
+        // Parse the JSON data.
+        const data = await response.json();
+        // Update the header with team and sport information.
+        document.getElementById('teamHeader').textContent = `${data.team} - ${data.sport} Stats`;
+        document.getElementById('seasonHeader').textContent = `Season ${data.season}`;
+        // Populate the table body with player statistics.
+        const tbody = document.querySelector('#statsTable tbody');
+        data.players.forEach(player => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${player.playerName}</td>
+            <td>${player.position}</td>
+            <td>${player.gamesPlayed}</td>
+            <td>${player.points}</td>
+            <td>${player.assists}</td>
+            <td>${player.rebounds}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        // Display an error message if the fetch fails or JSON is invalid.
+        const errMsg = document.createElement('p');
+        errMsg.textContent = 'Could not load data: ' + error.message;
+        errMsg.style.color = 'red';
+        document.body.appendChild(errMsg);
+      }
+    }
+    // Execute the function after the page loads.
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>
