@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment 7 – Drag and Drop Cards</title>
+  <style>
+    /* Use a CSS reset for consistent rendering */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-top: 1.5rem;
+      color: #333;
+    }
+    #controls {
+      margin-top: 1rem;
+    }
+    #dealButton {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #0074d9;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #dealButton:hover {
+      background-color: #005fa3;
+    }
+    #hand {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      padding: 0.5rem;
+      border: 2px dashed #aaa;
+      background-color: #fff;
+      width: 90%;
+      max-width: 800px;
+      min-height: 110px;
+    }
+    /* Each card is displayed as a div with background image from the sprite */
+    .card {
+      width: 73px;
+      height: 98px;
+      background-image: url('classic-playing-cards.png');
+      background-repeat: no-repeat;
+      background-size: 949px 392px; /* total sprite size minus 1px border on width */
+      cursor: move;
+    }
+    #discardPile {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 2px dashed #c00;
+      background-color: #fff5f5;
+      border-radius: 4px;
+      text-align: center;
+      width: 200px;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #discardPile.highlight {
+      background-color: #ffeaea;
+    }
+    /* Discarded card area uses the same sprite; faded */
+    #discardPile .discard-card {
+      width: 73px;
+      height: 98px;
+      background-image: url('classic-playing-cards.png');
+      background-repeat: no-repeat;
+      background-size: 949px 392px;
+      opacity: 0.5;
+      margin-bottom: 0.5rem;
+    }
+    #message {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #333;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Assignment 7: Drag and Drop Cards</h1>
+  <div id="controls">
+    <button id="dealButton">Deal New Hand</button>
+  </div>
+  <div id="hand"></div>
+  <div id="discardPile" ondragover="event.preventDefault();">
+    <strong>Discard Pile</strong>
+    <p style="font-size:0.8rem;color:#555;">Drag cards here to discard</p>
+  </div>
+  <div id="message"></div>
+
+  <script>
+    // This script is similar to the standalone version but uses a single sprite
+    // image (classic-playing-cards.png) instead of individual card files. Each
+    // card div sets its background position based on its suit and rank.
+
+    // Map suits to row index (0-based) in the sprite: Clubs, Spades, Hearts, Diamonds
+    const suitRows = { C: 0, S: 1, H: 2, D: 3 };
+
+    /**
+     * Create an array representing a full deck. Each card has a code (e.g. "C1")
+     * and a row/column index used to position it on the sprite. Columns range
+     * from 0–12 corresponding to Ace through King. Rows correspond to suits.
+     */
+    function createDeck() {
+      const deck = [];
+      for (const suit of ['C', 'S', 'H', 'D']) {
+        for (let rank = 1; rank <= 13; rank++) {
+          deck.push({ code: `${suit}${rank}`, suit, rank });
+        }
+      }
+      return deck;
+    }
+
+    /**
+     * Shuffle an array in place (Fisher–Yates).
+     */
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    let deck = [];
+    let playerHand = [];
+
+    /**
+     * Create a card element given a card descriptor. The element is draggable
+     * and stores its card code on a data attribute. The background position
+     * is calculated from the suit and rank.
+     */
+    function createCardElement(card) {
+      const div = document.createElement('div');
+      div.className = 'card';
+      const row = suitRows[card.suit];
+      const col = card.rank - 1;
+      const offsetX = -(col * 73);
+      const offsetY = -(row * 98);
+      div.style.backgroundPosition = `${offsetX}px ${offsetY}px`;
+      div.dataset.code = card.code;
+      div.setAttribute('draggable', 'true');
+      div.addEventListener('dragstart', handleDragStart);
+      return div;
+    }
+
+    /** Handle dragstart by storing card code on the dataTransfer */
+    function handleDragStart(event) {
+      const code = event.target.dataset.code;
+      event.dataTransfer.setData('text/plain', code);
+      if (typeof event.dataTransfer.setDragImage === 'function') {
+        // Use the element itself as drag image
+        event.dataTransfer.setDragImage(event.target, 20, 30);
+      }
+    }
+
+    /** Render the player's hand in the #hand container */
+    function displayHand() {
+      const handDiv = document.getElementById('hand');
+      handDiv.innerHTML = '';
+      playerHand.forEach(card => {
+        const el = createCardElement(card);
+        handDiv.appendChild(el);
+      });
+    }
+
+    /** Handle dropping a card into the discard pile */
+    function discardCard(event) {
+      event.preventDefault();
+      const code = event.dataTransfer.getData('text/plain');
+      if (!code) return;
+      const index = playerHand.findIndex(c => c.code === code);
+      if (index === -1) return;
+      const [removed] = playerHand.splice(index, 1);
+      displayHand();
+      // Show removed card in discard pile
+      const discardPile = document.getElementById('discardPile');
+      // Remove any existing card image
+      const existing = discardPile.querySelector('.discard-card');
+      if (existing) discardPile.removeChild(existing);
+      const disc = document.createElement('div');
+      disc.className = 'discard-card';
+      const row = suitRows[removed.suit];
+      const col = removed.rank - 1;
+      disc.style.backgroundPosition = `${-(col * 73)}px ${-(row * 98)}px`;
+      discardPile.insertBefore(disc, discardPile.firstChild);
+      // Draw a new card if deck not empty
+      let message = `Discarded ${removed.code}.`;
+      if (deck.length > 0) {
+        const newCard = deck.pop();
+        playerHand.push(newCard);
+        displayHand();
+        message += ` Drew ${newCard.code}.`;
+      }
+      if (playerHand.length === 0) {
+        message += ' Your hand is now empty!';
+      }
+      document.getElementById('message').textContent = message;
+    }
+
+    /** Deal a new hand: reset deck and hand */
+    function dealNewHand() {
+      deck = createDeck();
+      shuffle(deck);
+      playerHand = deck.splice(0, 5);
+      displayHand();
+      // Clear discard pile
+      const discardPile = document.getElementById('discardPile');
+      const existing = discardPile.querySelector('.discard-card');
+      if (existing) discardPile.removeChild(existing);
+      document.getElementById('message').textContent = 'Dealt 5 new cards. Drag any card to the discard pile to replace it.';
+    }
+
+    /** Setup highlight handlers for discard pile */
+    function setupDropZone() {
+      const discardPile = document.getElementById('discardPile');
+      discardPile.addEventListener('dragenter', () => discardPile.classList.add('highlight'));
+      discardPile.addEventListener('dragleave', () => discardPile.classList.remove('highlight'));
+      discardPile.addEventListener('drop', event => {
+        discardPile.classList.remove('highlight');
+        discardCard(event);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('dealButton').addEventListener('click', dealNewHand);
+      setupDropZone();
+      dealNewHand();
+    });
+  </script>
+</body>
+</html>
