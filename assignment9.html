@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 9 – Bouncing Ball Animation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f4f8;
+            text-align: center;
+            padding: 30px;
+        }
+        h1 {
+            color: #253858;
+        }
+        #myCanvas {
+            border: 2px solid #253858;
+            background-color: #fff;
+            display: block;
+            margin: 20px auto;
+        }
+        #instructions {
+            color: #42526e;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Assignment 9: Bouncing Ball Animation</h1>
+    <canvas id="myCanvas" width="600" height="350"></canvas>
+    <p id="instructions">Watch the ball bounce within the canvas. Click directly on the ball to change its color and reverse its direction.</p>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ball properties
+        let x = canvas.width / 4;        // initial x position
+        let y = canvas.height / 4;       // initial y position
+        let dx = 3;                      // horizontal velocity
+        let dy = 3;                      // vertical velocity
+        const radius = 25;               // ball radius
+        let color = randomColor();       // initial color
+
+        // Return a random RGB color string
+        function randomColor() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // Draw the ball at its current position
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+
+            // Move the ball
+            x += dx;
+            y += dy;
+
+            // Bounce off the left/right edges
+            if (x + radius >= canvas.width || x - radius <= 0) {
+                dx = -dx;
+            }
+
+            // Bounce off the top/bottom edges
+            if (y + radius >= canvas.height || y - radius <= 0) {
+                dy = -dy;
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Check if the click is inside the ball
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+            const distance = Math.hypot(clickX - x, clickY - y);
+
+            if (distance <= radius) {
+                // Change color and reverse direction
+                color = randomColor();
+                dx = -dx;
+                dy = -dy;
+            }
+        });
+
+        // Start the animation
+        animate();
+    </script>
+</body>
+</html>
