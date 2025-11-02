@@ -1,0 +1,49 @@
+<!-- This file duplicates assignment10/index_mobile.html for deployment at the
+     repository root so that it will be served via GitHub Pages at
+     /index_mobile.html. See assignment10/index_mobile.html for full comments. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cisco Cruz – Portfolio (Mobile)</title>
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+  <header>
+    <h1>Cisco Cruz</h1>
+    <button id="menuToggle" aria-label="Toggle navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav id="navbar">
+      <ul>
+        <li><a href="index_mobile.html">Home</a></li>
+        <li><a href="assignments.html">Assignments</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section id="intro">
+      <h2>Welcome</h2>
+      <p>This is my website for COP4813, where I will showcase web development assignments and demonstrate my skills.</p>
+      <p>I am passionate about developing creative and functional websites and learning new technologies. Feel free to explore the menu to see my work.</p>
+      <img src="https://via.placeholder.com/200x200.png?text=Cisco+Cruz" alt="A placeholder image representing Cisco Cruz" class="profile-image">
+    </section>
+  </main>
+  <footer>
+    <p>Created by Cisco Cruz</p>
+  </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleButton = document.getElementById('menuToggle');
+      const nav = document.getElementById('navbar');
+      toggleButton.addEventListener('click', () => {
+        nav.classList.toggle('open');
+      });
+    });
+  </script>
+</body>
+</html>

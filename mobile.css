@@ -1,0 +1,128 @@
+/* Mobile CSS at repository root for the mobile version of the home page.
+   This file is identical to assignment10/mobile.css and will be served at
+   /mobile.css via GitHub Pages. */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  background-color: #f5f5f5;
+}
+
+header {
+  background-color: #0d47a1;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+/* Hamburger button styling */
+#menuToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+
+#menuToggle span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background-color: #fff;
+  border-radius: 2px;
+}
+
+/* Navigation menu defaults to hidden on mobile */
+#navbar {
+  display: none;
+}
+
+#navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: #0d47a1;
+}
+
+#navbar.open {
+  display: block;
+}
+
+#navbar li {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#navbar li:first-child {
+  border-top: none;
+}
+
+#navbar a {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+#navbar a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  text-decoration: underline;
+}
+
+main {
+  padding: 1rem;
+}
+
+section {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.profile-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+footer {
+  background-color: #0d47a1;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Larger screens: restore horizontal navigation and hide hamburger */
+@media (min-width: 600px) {
+  #menuToggle {
+    display: none;
+  }
+  #navbar {
+    display: block;
+  }
+  #navbar ul {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    background-color: transparent;
+  }
+  #navbar li {
+    border: none;
+  }
+  #navbar a {
+    padding: 0;
+  }
+}
