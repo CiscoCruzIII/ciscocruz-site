@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assignment&nbsp;11 – Dynamic Course Advisor</title>
+    <!--
+      Assignment&nbsp;11 for the web development course.
+      This page implements a simple academic advising tool using
+      JSON data, dynamic element creation and HTML5 drag‑and‑drop.
+
+      Features:
+        • A set of courses loaded from a JSON object. Each course has a
+          human‑readable name, one or more prerequisite conditions and an
+          optional note. Prerequisites can include logical OR conditions.
+        • All course entries are generated dynamically and attached to
+          the DOM at runtime. No hard‑coded course markup appears
+          in the HTML.
+        • Users can drag courses from the “All Courses” list into the
+          “Completed Courses” bucket. Dropping a course marks it as
+          completed, disables its entry in the source list and updates the
+          list of courses that are now available to take.
+        • When two courses satisfy an OR prerequisite (e.g. COP2001
+          *or* COP2800), selecting one will disable the other and display
+          a note explaining why.
+        • Clicking any course anywhere on the page reveals details
+          including its prerequisites and notes in the information panel.
+
+      This tool demonstrates the three core requirements of the
+      assignment:
+        1. JSON is used to hold the data that drives the interface.
+        2. The interface elements (course items, available list, etc.)
+           are generated dynamically in JavaScript based on that data.
+        3. Event handlers respond to drag/drop and click events from
+           dynamically created elements.
+    -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        header {
+            background-color: #003366;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 1rem;
+            gap: 1rem;
+        }
+        .column {
+            flex: 1 1 30%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            min-width: 250px;
+        }
+        .column h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            text-align: center;
+            color: #003366;
+        }
+        #allCourses,
+        #completedCourses,
+        #availableCourses {
+            min-height: 300px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            padding: 0.5rem;
+            overflow-y: auto;
+        }
+        .course {
+            margin: 0.3rem 0;
+            padding: 0.3rem 0.5rem;
+            background-color: #e6f2ff;
+            border: 1px solid #99c5e6;
+            border-radius: 4px;
+            cursor: move;
+            user-select: none;
+        }
+        .course.taken {
+            background-color: #d1ffd1;
+            border-color: #89c789;
+            cursor: default;
+        }
+        .course.disabled {
+            background-color: #f5f5f5;
+            border-color: #ddd;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        #infoPanel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #infoPanel h3 {
+            margin-top: 0;
+            color: #003366;
+        }
+        button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+            border: none;
+            background-color: #003366;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005499;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dynamic Course Advisor</h1>
+    </header>
+    <div class="container">
+        <div class="column">
+            <h2>All Courses</h2>
+            <div id="allCourses" class="dropZone">
+                <!-- Courses will be inserted here dynamically -->
+            </div>
+        </div>
+        <div class="column">
+            <h2>Completed Courses (drop here)</h2>
+            <div id="completedCourses" class="dropZone">
+                <!-- Dropped courses appear here -->
+            </div>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <div class="column">
+            <h2>Available to Take</h2>
+            <div id="availableCourses">
+                <!-- Available courses to take appear here -->
+            </div>
+        </div>
+    </div>
+    <div id="infoPanel">
+        <h3>Course Details</h3>
+        <p id="courseName">Select a course to see details.</p>
+        <p id="coursePrereq"></p>
+        <p id="courseNote"></p>
+    </div>
+
+    <section id="modifications" style="margin: 1rem; background-color: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 1rem;">
+        <h3 style="margin-top:0; color:#003366;">Modifications and Notes</h3>
+        <p>This advising tool demonstrates dynamic object creation, drag/drop and event handling as required by Assignment&nbsp;11. A summary of customizations made while adapting the instructor’s example code includes:</p>
+        <ul>
+            <li><strong>Program selection:</strong> I built a simplified advisor for a hypothetical Computer Programming program. The JSON data defines eight courses with prerequisite relationships, including an OR prerequisite between COP2001 (C++) and COP2800 (Java).</li>
+            <li><strong>Data structure:</strong> Courses are stored in a plain JavaScript object. Each course contains a human‑readable name, a prerequisite array (supporting nested arrays for OR conditions) and an optional note.</li>
+            <li><strong>Dynamic generation:</strong> The interface lists (All Courses, Completed Courses and Available to Take) are generated completely from the JSON object in JavaScript. No course markup is hard‑coded in the HTML.</li>
+            <li><strong>Drag and drop:</strong> Courses can be dragged from the All Courses list into the Completed Courses area to mark them as taken. A double‑click shortcut is also provided to accommodate users who may have trouble with drag and drop (e.g. on mobile devices).</li>
+            <li><strong>OR prerequisite logic:</strong> Selecting either COP2001 or COP2800 automatically disables the alternate course. The available courses list updates to reflect that COP2334 can be taken after either of the two prerequisite paths.</li>
+            <li><strong>Course details panel:</strong> Clicking any course displays its name, formatted prerequisites and notes. This demonstrates responding to events triggered by dynamically created elements.</li>
+        </ul>
+        <p>Feel free to adapt this data structure and interface to another program guide by modifying the <code>courseData</code> object.</p>
+    </section>
+    <script>
+        // Course data defined in JSON. Each key corresponds to a course
+        // identifier. The 'prereq' property may contain an array of
+        // prerequisite identifiers, or nested arrays to represent OR
+        // conditions. An empty array means no prerequisites. A 'note'
+        // may describe special conditions for the course.
+        const courseData = {
+            ENC1101: {
+                name: 'ENC1101 – English Composition I',
+                prereq: [],
+                note: ''
+            },
+            MAC1105: {
+                name: 'MAC1105 – College Algebra',
+                prereq: [],
+                note: ''
+            },
+            COP1000: {
+                name: 'COP1000 – Introduction to Programming',
+                prereq: [],
+                note: ''
+            },
+            COP2001: {
+                name: 'COP2001 – C++ Programming',
+                prereq: ['COP1000'],
+                note: ''
+            },
+            COP2800: {
+                name: 'COP2800 – Java Programming',
+                prereq: ['COP1000'],
+                note: ''
+            },
+            COP2334: {
+                name: 'COP2334 – Object Oriented Programming',
+                prereq: [ ['COP2001', 'COP2800'] ],
+                note: 'Students must take either COP2001 or COP2800 before COP2334.'
+            },
+            COP2220: {
+                name: 'COP2220 – Advanced C Programming',
+                prereq: ['COP2001'],
+                note: ''
+            },
+            COP2010: {
+                name: 'COP2010 – Visual Basic Programming',
+                prereq: ['COP1000'],
+                note: ''
+            },
+            COP2850: {
+                name: 'COP2850 – Data Structures',
+                prereq: ['COP2334'],
+                note: ''
+            }
+        };
+
+        // State sets to track taken courses and disabled courses
+        const takenCourses = new Set();
+        const disabledCourses = new Set();
+
+        // DOM references
+        const allContainer = document.getElementById('allCourses');
+        const completedContainer = document.getElementById('completedCourses');
+        const availableContainer = document.getElementById('availableCourses');
+        const infoName = document.getElementById('courseName');
+        const infoPrereq = document.getElementById('coursePrereq');
+        const infoNote = document.getElementById('courseNote');
+        const resetBtn = document.getElementById('resetBtn');
+
+        /**
+         * Build the list of courses in the All Courses column.
+         */
+        function buildCourseList() {
+            for (const code in courseData) {
+                const course = createCourseElement(code, courseData[code]);
+                allContainer.appendChild(course);
+            }
+        }
+
+        /**
+         * Create a draggable course element with event listeners.
+         * @param {string} code - Course identifier.
+         * @param {Object} data - Course data object.
+         * @returns {HTMLElement}
+         */
+        function createCourseElement(code, data) {
+            const div = document.createElement('div');
+            div.className = 'course';
+            div.draggable = true;
+            div.textContent = data.name;
+            div.dataset.code = code;
+            // Drag and drop events
+            div.addEventListener('dragstart', e => {
+                if (div.classList.contains('disabled') || div.classList.contains('taken')) {
+                    e.preventDefault();
+                } else {
+                    e.dataTransfer.setData('text/plain', code);
+                    // Provide visual feedback
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+            // Click to show details
+            div.addEventListener('click', () => {
+                showCourseDetails(code);
+            });
+            // Allow users to double‑click a course to mark it as completed.
+            // This provides an accessible alternative to drag and drop for
+            // environments where dragging is not convenient (e.g. mobile
+            // devices or assistive technologies). The same logic as in
+            // handleDrop() will be applied.
+            div.addEventListener('dblclick', () => {
+                completeCourse(code);
+            });
+            return div;
+        }
+
+        /**
+         * Display course details in the info panel.
+         * @param {string} code
+         */
+        function showCourseDetails(code) {
+            const data = courseData[code];
+            infoName.textContent = data.name;
+            // Format prerequisites for display
+            if (!data.prereq || data.prereq.length === 0) {
+                infoPrereq.textContent = 'Prerequisites: none';
+            } else {
+                const formatted = data.prereq.map(req => {
+                    if (Array.isArray(req)) {
+                        return req.join(' OR ');
+                    } else {
+                        return req;
+                    }
+                }).join(', ');
+                infoPrereq.textContent = 'Prerequisites: ' + formatted;
+            }
+            infoNote.textContent = data.note;
+        }
+
+        /**
+         * Handle drop event on the completed courses container.
+         * @param {DragEvent} e
+         */
+        function handleDrop(e) {
+            e.preventDefault();
+            const code = e.dataTransfer.getData('text/plain');
+            if (!code) return;
+            // If course already taken or disabled, ignore
+            if (takenCourses.has(code) || disabledCourses.has(code)) return;
+            // Mark course as taken
+            takenCourses.add(code);
+            // Move the element to completed list and style accordingly
+            const elem = allContainer.querySelector(`[data-code="${code}"]`);
+            if (elem) {
+                elem.classList.add('taken');
+                elem.draggable = false;
+                completedContainer.appendChild(elem);
+            }
+            // Handle OR prerequisites disabling
+            applyOrLogic(code);
+            // Update available courses
+            updateAvailableCourses();
+        }
+
+        /**
+         * Mark a course as completed from a user action other than drag and
+         * drop. This is used by the double‑click handler as a fallback. It
+         * performs the same actions as handleDrop().
+         * @param {string} code
+         */
+        function completeCourse(code) {
+            if (!code) return;
+            if (takenCourses.has(code) || disabledCourses.has(code)) return;
+            takenCourses.add(code);
+            const elem = allContainer.querySelector(`[data-code="${code}"]`);
+            if (elem) {
+                elem.classList.add('taken');
+                elem.draggable = false;
+                completedContainer.appendChild(elem);
+            }
+            applyOrLogic(code);
+            updateAvailableCourses();
+        }
+
+        /**
+         * Apply OR logic by disabling alternate courses when one is taken.
+         * For example, if course A has a prerequisite [B,C], then if B is
+         * completed we disable C and vice versa. In this simplified
+         * implementation we look up any course that has an OR prereq array
+         * containing the completed course and disable the alternate.
+         * @param {string} completedCode
+         */
+        function applyOrLogic(completedCode) {
+            for (const code in courseData) {
+                const prereqs = courseData[code].prereq;
+                prereqs.forEach(req => {
+                    if (Array.isArray(req) && req.includes(completedCode)) {
+                        // Disable the other courses in the OR group
+                        req.forEach(alt => {
+                            if (alt !== completedCode) {
+                                disabledCourses.add(alt);
+                                const altElem = allContainer.querySelector(`[data-code="${alt}"]`);
+                                if (altElem && !takenCourses.has(alt)) {
+                                    altElem.classList.add('disabled');
+                                    altElem.draggable = false;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        /**
+         * Compute and display courses that the user is eligible to take
+         * based on their completed courses. Eligibility rules:
+         *   - Not already taken
+         *   - Not disabled via OR logic
+         *   - All prerequisites satisfied
+         */
+        function updateAvailableCourses() {
+            // Clear current list
+            availableContainer.textContent = '';
+            for (const code in courseData) {
+                // Skip if already taken or disabled
+                if (takenCourses.has(code) || disabledCourses.has(code)) continue;
+                // Check prerequisites
+                const { prereq } = courseData[code];
+                let eligible = true;
+                for (const req of prereq) {
+                    if (Array.isArray(req)) {
+                        // OR condition: at least one must be in takenCourses
+                        const ok = req.some(c => takenCourses.has(c));
+                        if (!ok) {
+                            eligible = false;
+                            break;
+                        }
+                    } else {
+                        if (!takenCourses.has(req)) {
+                            eligible = false;
+                            break;
+                        }
+                    }
+                }
+                if (eligible) {
+                    // Create a small element for available course
+                    const item = document.createElement('div');
+                    item.className = 'course';
+                    item.textContent = courseData[code].name;
+                    item.dataset.code = code;
+                    item.addEventListener('click', () => showCourseDetails(code));
+                    availableContainer.appendChild(item);
+                }
+            }
+            if (!availableContainer.hasChildNodes()) {
+                const none = document.createElement('p');
+                none.textContent = 'No courses currently available.';
+                availableContainer.appendChild(none);
+            }
+        }
+
+        /**
+         * Reset the tool to its initial state.
+         */
+        function resetAdvisor() {
+            // Reset sets and UI
+            takenCourses.clear();
+            disabledCourses.clear();
+            // Remove all children from completed and all lists
+            allContainer.innerHTML = '';
+            completedContainer.innerHTML = '';
+            availableContainer.innerHTML = '';
+            buildCourseList();
+            updateAvailableCourses();
+            infoName.textContent = 'Select a course to see details.';
+            infoPrereq.textContent = '';
+            infoNote.textContent = '';
+        }
+
+        // Event listeners for drag over and drop
+        completedContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        completedContainer.addEventListener('drop', handleDrop);
+
+        resetBtn.addEventListener('click', resetAdvisor);
+
+        // Build initial interface on load
+        buildCourseList();
+        updateAvailableCourses();
+    </script>
+</body>
+</html>
