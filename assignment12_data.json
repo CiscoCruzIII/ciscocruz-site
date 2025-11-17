@@ -1,0 +1,42 @@
+[
+  {
+    "name": "WordPress",
+    "support": "Open source (GPLv2 license) supported by a large community and most hosting providers",
+    "technology": "PHP and MySQL backend; runs on a web server (LAMP stack)",
+    "capabilities": "Extensive customization through tens of thousands of themes and more than 59,000 plugins; user‑friendly interface; built‑in blogging tools; search‑engine‑friendly architecture; large community and documentation; public REST API",
+    "limitations": "Can slow down or become unstable when too many plugins are used; requires regular updates and maintenance; third‑party themes and plugins can introduce security vulnerabilities; advanced customizations may require technical knowledge",
+    "example_site": "https://wordpress.org/"
+  },
+  {
+    "name": "Drupal",
+    "support": "Open source project with enterprise‑level support from Acquia and a global developer community",
+    "technology": "PHP running on a web server (Apache or Nginx) with a database such as MySQL, MariaDB, PostgreSQL or SQLite",
+    "capabilities": "Robust and scalable content modeling and taxonomy system; advanced user roles and access control; multilingual support; strong security hardening; headless/decoupled architecture via RESTful API; high scalability for large and complex websites",
+    "limitations": "Steep learning curve compared with WordPress; smaller marketplace of themes and modules; requires more server resources; fewer developers and higher development cost",
+    "example_site": "https://www.tesla.com/"
+  },
+  {
+    "name": "Joomla",
+    "support": "Free open‑source software maintained by The Joomla! Project and its community",
+    "technology": "PHP application using a MySQL or PostgreSQL database and running on a web server",
+    "capabilities": "Thousands of extensions and templates; built‑in SEO tools; flexible menu and module system; template override and custom fields for bespoke layouts; built‑in multilingual support and translation management; strong user management with granular permissions; robust security features including two‑factor authentication",
+    "limitations": "Steeper learning curve than WordPress; smaller extension ecosystem and fewer templates; extension compatibility issues can occur during upgrades; declining market share and smaller developer pool",
+    "example_site": "https://www.linux.com/"
+  },
+  {
+    "name": "Ghost",
+    "support": "Open source platform run by the non‑profit Ghost Foundation; offers paid hosting and community support",
+    "technology": "Built on Node.js; stores content in a database (SQLite by default, MySQL for production) and uses the Handlebars templating language",
+    "capabilities": "Minimalist editor (Koenig) focused on writing; built‑in support for memberships, newsletters, and subscriptions; fast performance and modern API for headless implementations; content can be published via REST and GraphQL APIs; clean, responsive themes",
+    "limitations": "Limited theme repository and few free themes; customizing themes requires learning Handlebars and code injection is restricted; fewer plugins and integrations compared with WordPress; self‑hosting requires command‑line installation and a Node.js environment",
+    "example_site": "https://openai.com/blog/"
+  },
+  {
+    "name": "Wix",
+    "support": "Proprietary website builder offered by Wix.com with hosted plans and customer support",
+    "technology": "Closed SaaS platform running on Wix’s servers; drag‑and‑drop client built with JavaScript; does not require a separate database",
+    "capabilities": "Hundreds of professionally designed templates; pixel‑perfect drag‑and‑drop editing; App Market with add‑ons such as e‑commerce, email marketing and booking systems; AI website builder; automatic backups and hosting; Wix Studio for responsive design and custom CSS/JS",
+    "limitations": "More expensive premium plans; mobile versions often require manual tweaks; slower page loading speeds; cannot change templates without rebuilding the site; limited page depth and a 100‑page limit; closed ecosystem restricts exporting the site",
+    "example_site": "https://www.haileybieberstyle.com/"
+  }
+]

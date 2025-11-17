@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assignment 12 – Content Management Systems</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      vertical-align: top;
+    }
+    th {
+      background-color: #e3e3e3;
+      text-align: left;
+    }
+    tbody tr:nth-child(odd) {
+      background-color: #fafafa;
+    }
+    a {
+      color: #0645ad;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Assignment 12 – Content Management Systems</h1>
+  <p>This page loads data about five content management systems from an external JSON file and displays a table summarizing each system’s support, technology stack, capabilities, limitations, and example sites. It demonstrates reading JSON with JavaScript and dynamically generating table rows.</p>
+
+  <table id="cmsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Support</th>
+        <th>Technology</th>
+        <th>Major Capabilities</th>
+        <th>Major Limitations</th>
+        <th>Example Site</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    // Fetch the JSON data and build the table
+    fetch('assignment12_data.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        const tbody = document.querySelector('#cmsTable tbody');
+        data.forEach(cms => {
+          const row = document.createElement('tr');
+          // Name
+          const nameCell = document.createElement('td');
+          nameCell.textContent = cms.name;
+          row.appendChild(nameCell);
+          // Support
+          const supportCell = document.createElement('td');
+          supportCell.textContent = cms.support;
+          row.appendChild(supportCell);
+          // Technology
+          const techCell = document.createElement('td');
+          techCell.textContent = cms.technology;
+          row.appendChild(techCell);
+          // Capabilities
+          const capsCell = document.createElement('td');
+          capsCell.textContent = cms.capabilities;
+          row.appendChild(capsCell);
+          // Limitations
+          const limitsCell = document.createElement('td');
+          limitsCell.textContent = cms.limitations;
+          row.appendChild(limitsCell);
+          // Example site
+          const exCell = document.createElement('td');
+          const link = document.createElement('a');
+          link.href = cms.example_site;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = cms.example_site;
+          exCell.appendChild(link);
+          row.appendChild(exCell);
+          tbody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        console.error('Error loading CMS data:', error);
+        const tbody = document.querySelector('#cmsTable tbody');
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 6;
+        cell.textContent = 'Unable to load CMS data.';
+        row.appendChild(cell);
+        tbody.appendChild(row);
+      });
+  </script>
+</body>
+</html>
